@@ -5,18 +5,28 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Truck, Download, Plus, BarChart3 } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Truck, Download, Plus, BarChart3, CalendarIcon } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import TruckChart from '@/components/TruckChart';
 import TruckTable from '@/components/TruckTable';
 
 interface TruckData {
   id: string;
   vin: string;
+  vehicleNumber?: string;
   model: string;
   year: number;
   capacity: number;
   charges: number;
+  driver?: string;
+  datetime: string;
+  serviceCost?: number;
+  maintenanceCost?: number;
+  fuelCost?: number;
   notes: string;
   dateAdded: string;
 }
@@ -25,12 +35,18 @@ const Index = () => {
   const [trucks, setTrucks] = useState<TruckData[]>([]);
   const [formData, setFormData] = useState({
     vin: '',
+    vehicleNumber: '',
     model: '',
     year: '',
     capacity: '',
     charges: '',
+    driver: '',
+    serviceCost: '',
+    maintenanceCost: '',
+    fuelCost: '',
     notes: ''
   });
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState(false);
 
   // Load trucks from localStorage on component mount
@@ -91,10 +107,16 @@ const Index = () => {
     const newTruck: TruckData = {
       id: Date.now().toString(),
       vin: formData.vin,
+      vehicleNumber: formData.vehicleNumber || undefined,
       model: formData.model,
       year: parseInt(formData.year),
       capacity: parseFloat(formData.capacity),
       charges: parseFloat(formData.charges),
+      driver: formData.driver || undefined,
+      datetime: selectedDate.toISOString(),
+      serviceCost: formData.serviceCost ? parseFloat(formData.serviceCost) : undefined,
+      maintenanceCost: formData.maintenanceCost ? parseFloat(formData.maintenanceCost) : undefined,
+      fuelCost: formData.fuelCost ? parseFloat(formData.fuelCost) : undefined,
       notes: formData.notes,
       dateAdded: new Date().toISOString()
     };
@@ -104,12 +126,18 @@ const Index = () => {
     // Reset form
     setFormData({
       vin: '',
+      vehicleNumber: '',
       model: '',
       year: '',
       capacity: '',
       charges: '',
+      driver: '',
+      serviceCost: '',
+      maintenanceCost: '',
+      fuelCost: '',
       notes: ''
     });
+    setSelectedDate(new Date());
 
     setIsLoading(false);
     toast({ title: "Success", description: "Truck added successfully!" });
@@ -121,16 +149,22 @@ const Index = () => {
       return;
     }
 
-    // Create CSV content (since we can't generate actual Excel without backend)
-    const headers = ['VIN', 'Model', 'Year', 'Capacity (tons)', 'Charges ($)', 'Notes', 'Date Added'];
+    // Create CSV content with new fields
+    const headers = ['VIN', 'Vehicle Number', 'Model', 'Year', 'Capacity (tons)', 'Charges ($)', 'Driver', 'DateTime', 'Service Cost ($)', 'Maintenance Cost ($)', 'Fuel Cost ($)', 'Notes', 'Date Added'];
     const csvContent = [
       headers.join(','),
       ...trucks.map(truck => [
         truck.vin,
+        truck.vehicleNumber || '',
         truck.model,
         truck.year,
         truck.capacity,
         truck.charges,
+        truck.driver || '',
+        new Date(truck.datetime).toLocaleString(),
+        truck.serviceCost || '',
+        truck.maintenanceCost || '',
+        truck.fuelCost || '',
         `"${truck.notes.replace(/"/g, '""')}"`,
         new Date(truck.dateAdded).toLocaleDateString()
       ].join(','))
@@ -183,6 +217,18 @@ const Index = () => {
                       placeholder="Enter VIN number"
                       className="mt-1"
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="vehicleNumber" className="text-sm font-medium text-gray-700">Vehicle Number</Label>
+                    <Input
+                      id="vehicleNumber"
+                      name="vehicleNumber"
+                      value={formData.vehicleNumber}
+                      onChange={handleInputChange}
+                      placeholder="Enter vehicle number"
+                      className="mt-1"
                     />
                   </div>
                   
@@ -244,6 +290,90 @@ const Index = () => {
                       min="0"
                       className="mt-1"
                       required
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="driver" className="text-sm font-medium text-gray-700">Driver</Label>
+                    <Input
+                      id="driver"
+                      name="driver"
+                      value={formData.driver}
+                      onChange={handleInputChange}
+                      placeholder="Enter driver name"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700">Date & Time</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal mt-1",
+                            !selectedDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={selectedDate}
+                          onSelect={(date) => date && setSelectedDate(date)}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="serviceCost" className="text-sm font-medium text-gray-700">Service Cost ($)</Label>
+                    <Input
+                      id="serviceCost"
+                      name="serviceCost"
+                      type="number"
+                      step="0.01"
+                      value={formData.serviceCost}
+                      onChange={handleInputChange}
+                      placeholder="500.00"
+                      min="0"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="maintenanceCost" className="text-sm font-medium text-gray-700">Maintenance Cost ($)</Label>
+                    <Input
+                      id="maintenanceCost"
+                      name="maintenanceCost"
+                      type="number"
+                      step="0.01"
+                      value={formData.maintenanceCost}
+                      onChange={handleInputChange}
+                      placeholder="300.00"
+                      min="0"
+                      className="mt-1"
+                    />
+                  </div>
+
+                  <div>
+                    <Label htmlFor="fuelCost" className="text-sm font-medium text-gray-700">Fuel Cost ($)</Label>
+                    <Input
+                      id="fuelCost"
+                      name="fuelCost"
+                      type="number"
+                      step="0.01"
+                      value={formData.fuelCost}
+                      onChange={handleInputChange}
+                      placeholder="200.00"
+                      min="0"
+                      className="mt-1"
                     />
                   </div>
                   
