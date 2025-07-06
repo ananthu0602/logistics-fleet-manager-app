@@ -9,7 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      trucks: {
+        Row: {
+          date_added: string
+          datetime: string
+          driver: string | null
+          fuel_cost: number | null
+          id: string
+          maintenance_cost: number | null
+          service_cost: number | null
+          vehicle_number: string | null
+        }
+        Insert: {
+          date_added?: string
+          datetime: string
+          driver?: string | null
+          fuel_cost?: number | null
+          id?: string
+          maintenance_cost?: number | null
+          service_cost?: number | null
+          vehicle_number?: string | null
+        }
+        Update: {
+          date_added?: string
+          datetime?: string
+          driver?: string | null
+          fuel_cost?: number | null
+          id?: string
+          maintenance_cost?: number | null
+          service_cost?: number | null
+          vehicle_number?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

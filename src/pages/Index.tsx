@@ -1,32 +1,20 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Truck, Download, Plus, BarChart3, CalendarIcon } from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import TruckChart from '@/components/TruckChart';
 import TruckTable from '@/components/TruckTable';
-
-interface TruckData {
-  id: string;
-  vehicleNumber?: string;
-  driver?: string;
-  datetime: string;
-  serviceCost?: number;
-  maintenanceCost?: number;
-  fuelCost?: number;
-  dateAdded: string;
-}
+import { useTrucks } from '@/hooks/useTrucks';
 
 const Index = () => {
-  const [trucks, setTrucks] = useState<TruckData[]>([]);
+  const { trucks, isLoading, addTruck } = useTrucks();
   const [formData, setFormData] = useState({
     vehicleNumber: '',
     driver: '',
@@ -35,20 +23,6 @@ const Index = () => {
     fuelCost: ''
   });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Load trucks from localStorage on component mount
-  useEffect(() => {
-    const savedTrucks = localStorage.getItem('truckFleetData');
-    if (savedTrucks) {
-      setTrucks(JSON.parse(savedTrucks));
-    }
-  }, []);
-
-  // Save trucks to localStorage whenever trucks array changes
-  useEffect(() => {
-    localStorage.setItem('truckFleetData', JSON.stringify(trucks));
-  }, [trucks]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -60,42 +34,33 @@ const Index = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    setIsLoading(true);
-    
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const newTruck: TruckData = {
-      id: Date.now().toString(),
+    const truckData = {
       vehicleNumber: formData.vehicleNumber || undefined,
       driver: formData.driver || undefined,
       datetime: selectedDate.toISOString(),
       serviceCost: formData.serviceCost ? parseFloat(formData.serviceCost) : undefined,
       maintenanceCost: formData.maintenanceCost ? parseFloat(formData.maintenanceCost) : undefined,
       fuelCost: formData.fuelCost ? parseFloat(formData.fuelCost) : undefined,
-      dateAdded: new Date().toISOString()
     };
 
-    setTrucks(prev => [...prev, newTruck]);
+    const success = await addTruck(truckData);
     
-    // Reset form
-    setFormData({
-      vehicleNumber: '',
-      driver: '',
-      serviceCost: '',
-      maintenanceCost: '',
-      fuelCost: ''
-    });
-    setSelectedDate(new Date());
-
-    setIsLoading(false);
-    toast({ title: "Success", description: "Truck added successfully!" });
+    if (success) {
+      // Reset form
+      setFormData({
+        vehicleNumber: '',
+        driver: '',
+        serviceCost: '',
+        maintenanceCost: '',
+        fuelCost: ''
+      });
+      setSelectedDate(new Date());
+    }
   };
 
   const handleDownloadExcel = () => {
     if (trucks.length === 0) {
-      toast({ title: "No Data", description: "No truck data to download", variant: "destructive" });
       return;
     }
 
@@ -123,8 +88,6 @@ const Index = () => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
-    toast({ title: "Download Started", description: "Your truck data is being downloaded as CSV" });
   };
 
   return (
