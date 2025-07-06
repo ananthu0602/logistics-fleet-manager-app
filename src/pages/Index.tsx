@@ -16,35 +16,23 @@ import TruckTable from '@/components/TruckTable';
 
 interface TruckData {
   id: string;
-  vin: string;
   vehicleNumber?: string;
-  model: string;
-  year: number;
-  capacity: number;
-  charges: number;
   driver?: string;
   datetime: string;
   serviceCost?: number;
   maintenanceCost?: number;
   fuelCost?: number;
-  notes: string;
   dateAdded: string;
 }
 
 const Index = () => {
   const [trucks, setTrucks] = useState<TruckData[]>([]);
   const [formData, setFormData] = useState({
-    vin: '',
     vehicleNumber: '',
-    model: '',
-    year: '',
-    capacity: '',
-    charges: '',
     driver: '',
     serviceCost: '',
     maintenanceCost: '',
-    fuelCost: '',
-    notes: ''
+    fuelCost: ''
   });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isLoading, setIsLoading] = useState(false);
@@ -70,35 +58,9 @@ const Index = () => {
     }));
   };
 
-  const validateForm = () => {
-    if (!formData.vin.trim()) {
-      toast({ title: "Error", description: "VIN is required", variant: "destructive" });
-      return false;
-    }
-    if (!formData.model.trim()) {
-      toast({ title: "Error", description: "Model is required", variant: "destructive" });
-      return false;
-    }
-    if (!formData.year || parseInt(formData.year) < 1900 || parseInt(formData.year) > new Date().getFullYear() + 1) {
-      toast({ title: "Error", description: "Please enter a valid year", variant: "destructive" });
-      return false;
-    }
-    if (!formData.capacity || parseFloat(formData.capacity) <= 0) {
-      toast({ title: "Error", description: "Capacity must be greater than 0", variant: "destructive" });
-      return false;
-    }
-    if (!formData.charges || parseFloat(formData.charges) < 0) {
-      toast({ title: "Error", description: "Charges cannot be negative", variant: "destructive" });
-      return false;
-    }
-    return true;
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
-
     setIsLoading(true);
     
     // Simulate API call delay
@@ -106,18 +68,12 @@ const Index = () => {
 
     const newTruck: TruckData = {
       id: Date.now().toString(),
-      vin: formData.vin,
       vehicleNumber: formData.vehicleNumber || undefined,
-      model: formData.model,
-      year: parseInt(formData.year),
-      capacity: parseFloat(formData.capacity),
-      charges: parseFloat(formData.charges),
       driver: formData.driver || undefined,
       datetime: selectedDate.toISOString(),
       serviceCost: formData.serviceCost ? parseFloat(formData.serviceCost) : undefined,
       maintenanceCost: formData.maintenanceCost ? parseFloat(formData.maintenanceCost) : undefined,
       fuelCost: formData.fuelCost ? parseFloat(formData.fuelCost) : undefined,
-      notes: formData.notes,
       dateAdded: new Date().toISOString()
     };
 
@@ -125,17 +81,11 @@ const Index = () => {
     
     // Reset form
     setFormData({
-      vin: '',
       vehicleNumber: '',
-      model: '',
-      year: '',
-      capacity: '',
-      charges: '',
       driver: '',
       serviceCost: '',
       maintenanceCost: '',
-      fuelCost: '',
-      notes: ''
+      fuelCost: ''
     });
     setSelectedDate(new Date());
 
@@ -149,23 +99,17 @@ const Index = () => {
       return;
     }
 
-    // Create CSV content with new fields
-    const headers = ['VIN', 'Vehicle Number', 'Model', 'Year', 'Capacity (tons)', 'Charges ($)', 'Driver', 'DateTime', 'Service Cost ($)', 'Maintenance Cost ($)', 'Fuel Cost ($)', 'Notes', 'Date Added'];
+    // Create CSV content
+    const headers = ['Vehicle Number', 'Driver', 'DateTime', 'Service Cost ($)', 'Maintenance Cost ($)', 'Fuel Cost ($)', 'Date Added'];
     const csvContent = [
       headers.join(','),
       ...trucks.map(truck => [
-        truck.vin,
         truck.vehicleNumber || '',
-        truck.model,
-        truck.year,
-        truck.capacity,
-        truck.charges,
         truck.driver || '',
         new Date(truck.datetime).toLocaleString(),
         truck.serviceCost || '',
         truck.maintenanceCost || '',
         truck.fuelCost || '',
-        `"${truck.notes.replace(/"/g, '""')}"`,
         new Date(truck.dateAdded).toLocaleDateString()
       ].join(','))
     ].join('\n');
@@ -202,24 +146,11 @@ const Index = () => {
               <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
                 <CardTitle className="flex items-center gap-2">
                   <Plus className="h-5 w-5" />
-                  Add New Truck
+                  Add New Truck Entry
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="vin" className="text-sm font-medium text-gray-700">VIN *</Label>
-                    <Input
-                      id="vin"
-                      name="vin"
-                      value={formData.vin}
-                      onChange={handleInputChange}
-                      placeholder="Enter VIN number"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-
                   <div>
                     <Label htmlFor="vehicleNumber" className="text-sm font-medium text-gray-700">Vehicle Number</Label>
                     <Input
@@ -229,67 +160,6 @@ const Index = () => {
                       onChange={handleInputChange}
                       placeholder="Enter vehicle number"
                       className="mt-1"
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="model" className="text-sm font-medium text-gray-700">Model *</Label>
-                    <Input
-                      id="model"
-                      name="model"
-                      value={formData.model}
-                      onChange={handleInputChange}
-                      placeholder="e.g., Freightliner Cascadia"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="year" className="text-sm font-medium text-gray-700">Year *</Label>
-                    <Input
-                      id="year"
-                      name="year"
-                      type="number"
-                      value={formData.year}
-                      onChange={handleInputChange}
-                      placeholder="2024"
-                      min="1900"
-                      max={new Date().getFullYear() + 1}
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="capacity" className="text-sm font-medium text-gray-700">Capacity (tons) *</Label>
-                    <Input
-                      id="capacity"
-                      name="capacity"
-                      type="number"
-                      step="0.1"
-                      value={formData.capacity}
-                      onChange={handleInputChange}
-                      placeholder="25.5"
-                      min="0"
-                      className="mt-1"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="charges" className="text-sm font-medium text-gray-700">Monthly Charges ($) *</Label>
-                    <Input
-                      id="charges"
-                      name="charges"
-                      type="number"
-                      step="0.01"
-                      value={formData.charges}
-                      onChange={handleInputChange}
-                      placeholder="1500.00"
-                      min="0"
-                      className="mt-1"
-                      required
                     />
                   </div>
 
@@ -377,19 +247,6 @@ const Index = () => {
                     />
                   </div>
                   
-                  <div>
-                    <Label htmlFor="notes" className="text-sm font-medium text-gray-700">Notes</Label>
-                    <Textarea
-                      id="notes"
-                      name="notes"
-                      value={formData.notes}
-                      onChange={handleInputChange}
-                      placeholder="Additional notes about the truck..."
-                      className="mt-1"
-                      rows={3}
-                    />
-                  </div>
-                  
                   <Button 
                     type="submit" 
                     className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
@@ -398,12 +255,12 @@ const Index = () => {
                     {isLoading ? (
                       <div className="flex items-center gap-2">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Adding Truck...
+                        Adding Entry...
                       </div>
                     ) : (
                       <>
                         <Plus className="h-4 w-4 mr-2" />
-                        Add Truck
+                        Add Entry
                       </>
                     )}
                   </Button>
@@ -420,7 +277,7 @@ const Index = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-green-100">Total Trucks</p>
+                      <p className="text-green-100">Total Entries</p>
                       <p className="text-2xl font-bold">{trucks.length}</p>
                     </div>
                     <Truck className="h-8 w-8 text-green-200" />
@@ -432,9 +289,9 @@ const Index = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-blue-100">Total Capacity</p>
+                      <p className="text-blue-100">Total Service Cost</p>
                       <p className="text-2xl font-bold">
-                        {trucks.reduce((sum, truck) => sum + truck.capacity, 0).toFixed(1)}t
+                        ${trucks.reduce((sum, truck) => sum + (truck.serviceCost || 0), 0).toLocaleString()}
                       </p>
                     </div>
                     <BarChart3 className="h-8 w-8 text-blue-200" />
@@ -446,9 +303,9 @@ const Index = () => {
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-purple-100">Monthly Costs</p>
+                      <p className="text-purple-100">Total Costs</p>
                       <p className="text-2xl font-bold">
-                        ${trucks.reduce((sum, truck) => sum + truck.charges, 0).toLocaleString()}
+                        ${trucks.reduce((sum, truck) => sum + (truck.serviceCost || 0) + (truck.maintenanceCost || 0) + (truck.fuelCost || 0), 0).toLocaleString()}
                       </p>
                     </div>
                     <Download className="h-8 w-8 text-purple-200" />
@@ -462,7 +319,7 @@ const Index = () => {
               <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
                 <CardTitle className="flex items-center gap-2">
                   <BarChart3 className="h-5 w-5" />
-                  Fleet Capacity Analysis
+                  Cost Analysis
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
