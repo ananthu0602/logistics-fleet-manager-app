@@ -6,12 +6,12 @@ Chart.register(...registerables);
 
 interface TruckData {
   id: string;
-  vin: string;
-  model: string;
-  year: number;
-  capacity: number;
-  charges: number;
-  notes: string;
+  vehicleNumber?: string;
+  driver?: string;
+  datetime: string;
+  serviceCost?: number;
+  maintenanceCost?: number;
+  fuelCost?: number;
   dateAdded: string;
 }
 
@@ -35,32 +35,33 @@ const TruckChart: React.FC<TruckChartProps> = ({ trucks }) => {
       return;
     }
 
-    // Prepare data for the chart
-    const modelCapacityMap = new Map<string, number>();
-    trucks.forEach(truck => {
-      const currentCapacity = modelCapacityMap.get(truck.model) || 0;
-      modelCapacityMap.set(truck.model, currentCapacity + truck.capacity);
-    });
-
-    const labels = Array.from(modelCapacityMap.keys());
-    const data = Array.from(modelCapacityMap.values());
+    // Prepare data for cost analysis chart
+    const costTypes = ['Service Cost', 'Maintenance Cost', 'Fuel Cost'];
+    const totalServiceCost = trucks.reduce((sum, truck) => sum + (truck.serviceCost || 0), 0);
+    const totalMaintenanceCost = trucks.reduce((sum, truck) => sum + (truck.maintenanceCost || 0), 0);
+    const totalFuelCost = trucks.reduce((sum, truck) => sum + (truck.fuelCost || 0), 0);
+    
+    const data = [totalServiceCost, totalMaintenanceCost, totalFuelCost];
 
     // Generate colors
-    const backgroundColors = labels.map((_, index) => {
-      const hue = (index * 137.5) % 360; // Golden angle for color distribution
-      return `hsla(${hue}, 70%, 60%, 0.8)`;
-    });
+    const backgroundColors = [
+      'hsla(210, 70%, 60%, 0.8)', // Blue for service
+      'hsla(30, 70%, 60%, 0.8)',  // Orange for maintenance
+      'hsla(0, 70%, 60%, 0.8)'    // Red for fuel
+    ];
 
-    const borderColors = backgroundColors.map(color => 
-      color.replace('0.8)', '1)')
-    );
+    const borderColors = [
+      'hsla(210, 70%, 60%, 1)',
+      'hsla(30, 70%, 60%, 1)',
+      'hsla(0, 70%, 60%, 1)'
+    ];
 
     const config: ChartConfiguration = {
       type: 'bar',
       data: {
-        labels,
+        labels: costTypes,
         datasets: [{
-          label: 'Total Capacity (tons)',
+          label: 'Total Cost ($)',
           data,
           backgroundColor: backgroundColors,
           borderColor: borderColors,
@@ -86,7 +87,7 @@ const TruckChart: React.FC<TruckChartProps> = ({ trucks }) => {
           },
           title: {
             display: true,
-            text: 'Fleet Capacity by Model',
+            text: 'Fleet Cost Breakdown',
             font: {
               size: 16,
               weight: 'bold'
@@ -99,7 +100,7 @@ const TruckChart: React.FC<TruckChartProps> = ({ trucks }) => {
             beginAtZero: true,
             title: {
               display: true,
-              text: 'Capacity (tons)',
+              text: 'Total Cost ($)',
               font: {
                 size: 12,
                 weight: 'bold'
@@ -110,13 +111,16 @@ const TruckChart: React.FC<TruckChartProps> = ({ trucks }) => {
               color: '#e5e7eb'
             },
             ticks: {
-              color: '#6b7280'
+              color: '#6b7280',
+              callback: function(value) {
+                return '$' + Number(value).toLocaleString();
+              }
             }
           },
           x: {
             title: {
               display: true,
-              text: 'Truck Models',
+              text: 'Cost Types',
               font: {
                 size: 12,
                 weight: 'bold'
@@ -127,8 +131,7 @@ const TruckChart: React.FC<TruckChartProps> = ({ trucks }) => {
               display: false
             },
             ticks: {
-              color: '#6b7280',
-              maxRotation: 45
+              color: '#6b7280'
             }
           }
         },
@@ -154,7 +157,7 @@ const TruckChart: React.FC<TruckChartProps> = ({ trucks }) => {
         <div className="text-center">
           <div className="text-4xl mb-4">📊</div>
           <p className="text-lg font-medium">No data to display</p>
-          <p className="text-sm">Add trucks to see the capacity analysis</p>
+          <p className="text-sm">Add truck entries to see the cost analysis</p>
         </div>
       </div>
     );
