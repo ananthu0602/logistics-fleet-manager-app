@@ -17,7 +17,6 @@ interface TruckData {
   toll?: number;
   rto?: number;
   misc?: number;
-  balance?: number;
   datetime: string;
   dateAdded: string;
 }
@@ -59,7 +58,6 @@ export const useTrucks = () => {
         toll: truck.toll ? Number(truck.toll) : undefined,
         rto: truck.rto ? Number(truck.rto) : undefined,
         misc: truck.misc ? Number(truck.misc) : undefined,
-        balance: truck.balance ? Number(truck.balance) : undefined,
         datetime: truck.datetime,
         dateAdded: truck.date_added
       }));
@@ -95,8 +93,7 @@ export const useTrucks = () => {
           unloading: truckData.unloading || null,
           toll: truckData.toll || null,
           rto: truckData.rto || null,
-          misc: truckData.misc || null,
-          balance: truckData.balance || null
+          misc: truckData.misc || null
         })
         .select()
         .single();
@@ -126,7 +123,6 @@ export const useTrucks = () => {
         toll: data.toll ? Number(data.toll) : undefined,
         rto: data.rto ? Number(data.rto) : undefined,
         misc: data.misc ? Number(data.misc) : undefined,
-        balance: data.balance ? Number(data.balance) : undefined,
         datetime: data.datetime,
         dateAdded: data.date_added
       };
@@ -152,10 +148,122 @@ export const useTrucks = () => {
     fetchTrucks();
   }, []);
 
+  // Update a truck
+  const updateTruck = async (id: string, updates: Partial<Omit<TruckData, 'id' | 'dateAdded'>>) => {
+    setIsLoading(true);
+    
+    try {
+      const { data, error } = await supabase
+        .from('trucks')
+        .update({
+          vehicle_number: updates.vehicle || null,
+          datetime: updates.datetime,
+          hire: updates.hire || null,
+          expense: updates.expense || null,
+          trips: updates.trips || null,
+          fuel_cost: updates.fuel || null,
+          bata: updates.bata || null,
+          maintenance: updates.maintenance || null,
+          holding: updates.holding || null,
+          unloading: updates.unloading || null,
+          toll: updates.toll || null,
+          rto: updates.rto || null,
+          misc: updates.misc || null,
+        })
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating truck:', error);
+        toast({ 
+          title: "Error", 
+          description: "Failed to update truck entry", 
+          variant: "destructive" 
+        });
+        return false;
+      }
+
+      // Update local state
+      setTrucks(prev => prev.map(truck => 
+        truck.id === id 
+          ? {
+              ...truck,
+              vehicle: data.vehicle_number || undefined,
+              hire: data.hire ? Number(data.hire) : undefined,
+              expense: data.expense ? Number(data.expense) : undefined,
+              trips: data.trips ? Number(data.trips) : undefined,
+              fuel: data.fuel_cost ? Number(data.fuel_cost) : undefined,
+              bata: data.bata ? Number(data.bata) : undefined,
+              maintenance: data.maintenance ? Number(data.maintenance) : undefined,
+              holding: data.holding ? Number(data.holding) : undefined,
+              unloading: data.unloading ? Number(data.unloading) : undefined,
+              toll: data.toll ? Number(data.toll) : undefined,
+              rto: data.rto ? Number(data.rto) : undefined,
+              misc: data.misc ? Number(data.misc) : undefined,
+              datetime: data.datetime,
+            }
+          : truck
+      ));
+
+      toast({ title: "Success", description: "Truck entry updated successfully!" });
+      return true;
+    } catch (error) {
+      console.error('Error updating truck:', error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to update truck entry", 
+        variant: "destructive" 
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Delete a truck
+  const deleteTruck = async (id: string) => {
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase
+        .from('trucks')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting truck:', error);
+        toast({ 
+          title: "Error", 
+          description: "Failed to delete truck entry", 
+          variant: "destructive" 
+        });
+        return false;
+      }
+
+      // Update local state
+      setTrucks(prev => prev.filter(truck => truck.id !== id));
+      toast({ title: "Success", description: "Truck entry deleted successfully!" });
+      return true;
+    } catch (error) {
+      console.error('Error deleting truck:', error);
+      toast({ 
+        title: "Error", 
+        description: "Failed to delete truck entry", 
+        variant: "destructive" 
+      });
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     trucks,
     isLoading,
     addTruck,
+    updateTruck,
+    deleteTruck,
     refetch: fetchTrucks
   };
 };

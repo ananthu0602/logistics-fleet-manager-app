@@ -23,7 +23,6 @@ interface TruckFormData {
   toll: string;
   rto: string;
   misc: string;
-  balance: string;
 }
 
 interface TruckFormProps {
@@ -44,8 +43,7 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
     unloading: '',
     toll: '',
     rto: '',
-    misc: '',
-    balance: ''
+    misc: ''
   });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
@@ -74,7 +72,6 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
       toll: formData.toll ? parseFloat(formData.toll) : undefined,
       rto: formData.rto ? parseFloat(formData.rto) : undefined,
       misc: formData.misc ? parseFloat(formData.misc) : undefined,
-      balance: formData.balance ? parseFloat(formData.balance) : undefined,
     };
 
     const success = await onSubmit(truckData);
@@ -93,32 +90,30 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
         unloading: '',
         toll: '',
         rto: '',
-        misc: '',
-        balance: ''
+        misc: ''
       });
       setSelectedDate(new Date());
     }
   };
 
   const fields = [
-    { name: 'vehicle', label: 'Vehicle', type: 'text', placeholder: 'Enter vehicle number' },
-    { name: 'hire', label: 'Hire (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'expense', label: 'Expense (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'trips', label: 'Trips', type: 'number', placeholder: '0' },
-    { name: 'fuel', label: 'Fuel (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'bata', label: 'Bata (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'maintenance', label: 'Maintenance (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'holding', label: 'Holding (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'unloading', label: 'Unloading (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'toll', label: 'Toll (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'rto', label: 'RTO (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'misc', label: 'Misc (₹)', type: 'number', placeholder: '0.00' },
-    { name: 'balance', label: 'Balance (₹)', type: 'number', placeholder: '0.00' }
+    { name: 'vehicle', label: 'Vehicle Number', type: 'text', placeholder: 'Enter vehicle number' },
+    { name: 'hire', label: 'Hire Amount (₹)', type: 'number', placeholder: '0.00' },
+    { name: 'expense', label: 'General Expense (₹)', type: 'number', placeholder: '0.00' },
+    { name: 'trips', label: 'Number of Trips', type: 'number', placeholder: '0' },
+    { name: 'fuel', label: 'Fuel Cost (₹)', type: 'number', placeholder: '0.00' },
+    { name: 'bata', label: 'Driver Allowance (₹)', type: 'number', placeholder: '0.00' },
+    { name: 'maintenance', label: 'Maintenance Cost (₹)', type: 'number', placeholder: '0.00' },
+    { name: 'holding', label: 'Holding Charges (₹)', type: 'number', placeholder: '0.00' },
+    { name: 'unloading', label: 'Unloading Charges (₹)', type: 'number', placeholder: '0.00' },
+    { name: 'toll', label: 'Toll Charges (₹)', type: 'number', placeholder: '0.00' },
+    { name: 'rto', label: 'RTO Charges (₹)', type: 'number', placeholder: '0.00' },
+    { name: 'misc', label: 'Miscellaneous (₹)', type: 'number', placeholder: '0.00' }
   ];
 
   return (
-    <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
-      <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
+    <Card className="shadow-lg border-0 bg-card">
+      <CardHeader className="bg-gradient-to-r from-primary to-accent text-primary-foreground rounded-t-lg">
         <CardTitle className="flex items-center gap-2">
           <Plus className="h-5 w-5" />
           Add New Truck Entry
@@ -128,7 +123,7 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
         <form onSubmit={handleSubmit} className="space-y-4">
           {fields.map((field) => (
             <div key={field.name}>
-              <Label htmlFor={field.name} className="text-sm font-medium text-gray-700">
+              <Label htmlFor={field.name} className="text-sm font-medium text-card-foreground">
                 {field.label}
               </Label>
               <Input
@@ -146,7 +141,7 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
           ))}
 
           <div>
-            <Label className="text-sm font-medium text-gray-700">Date</Label>
+            <Label className="text-sm font-medium text-card-foreground">Date</Label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -174,7 +169,7 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
           
           <Button 
             type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-md transition-all duration-200"
             disabled={isLoading}
           >
             {isLoading ? (

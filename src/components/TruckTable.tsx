@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 interface TruckData {
   id: string;
@@ -16,16 +17,17 @@ interface TruckData {
   toll?: number;
   rto?: number;
   misc?: number;
-  balance?: number;
   datetime: string;
   dateAdded: string;
 }
 
 interface TruckTableProps {
   trucks: TruckData[];
+  onEdit?: (truck: TruckData) => void;
+  onDelete?: (id: string) => void;
 }
 
-const TruckTable: React.FC<TruckTableProps> = ({ trucks }) => {
+const TruckTable: React.FC<TruckTableProps> = ({ trucks, onEdit, onDelete }) => {
   const calculateProfit = (truck: TruckData) => {
     const income = truck.hire || 0;
     const totalExpenses = (truck.expense || 0) + (truck.fuel || 0) + (truck.bata || 0) + 
@@ -45,8 +47,8 @@ const TruckTable: React.FC<TruckTableProps> = ({ trucks }) => {
             <TableHead className="font-semibold text-gray-700">Trips</TableHead>
             <TableHead className="font-semibold text-gray-700">Fuel</TableHead>
             <TableHead className="font-semibold text-gray-700">Maintenance</TableHead>
-            <TableHead className="font-semibold text-gray-700">Balance</TableHead>
             <TableHead className="font-semibold text-gray-700">Profit/Loss</TableHead>
+            {(onEdit || onDelete) && <TableHead className="font-semibold text-gray-700">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -72,12 +74,35 @@ const TruckTable: React.FC<TruckTableProps> = ({ trucks }) => {
                 <TableCell className="font-medium text-orange-600">
                   {truck.maintenance ? `₹${truck.maintenance.toLocaleString()}` : '-'}
                 </TableCell>
-                <TableCell className="font-medium text-blue-600">
-                  {truck.balance ? `₹${truck.balance.toLocaleString()}` : '-'}
-                </TableCell>
-                <TableCell className={`font-medium ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <TableCell className={`font-medium ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
                   {profit >= 0 ? '+' : ''}₹{profit.toLocaleString()}
                 </TableCell>
+                {(onEdit || onDelete) && (
+                  <TableCell>
+                    <div className="flex gap-2">
+                      {onEdit && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onEdit(truck)}
+                          className="hover:bg-info hover:text-info-foreground transition-colors"
+                        >
+                          Edit
+                        </Button>
+                      )}
+                      {onDelete && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => onDelete(truck.id)}
+                          className="hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </div>
+                  </TableCell>
+                )}
               </TableRow>
             );
           })}
