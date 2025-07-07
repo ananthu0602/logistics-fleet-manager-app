@@ -1,82 +1,46 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Truck, Download, Plus, BarChart3, CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { Truck, Download, BarChart3 } from 'lucide-react';
 import TruckChart from '@/components/TruckChart';
 import TruckTable from '@/components/TruckTable';
+import TruckForm from '@/components/TruckForm';
+import ProfitabilityDashboard from '@/components/ProfitabilityDashboard';
 import { useTrucks } from '@/hooks/useTrucks';
 
 const Index = () => {
   const { trucks, isLoading, addTruck } = useTrucks();
-  const [formData, setFormData] = useState({
-    vehicleNumber: '',
-    driver: '',
-    serviceCost: '',
-    maintenanceCost: '',
-    fuelCost: ''
-  });
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const truckData = {
-      vehicleNumber: formData.vehicleNumber || undefined,
-      driver: formData.driver || undefined,
-      datetime: selectedDate.toISOString(),
-      serviceCost: formData.serviceCost ? parseFloat(formData.serviceCost) : undefined,
-      maintenanceCost: formData.maintenanceCost ? parseFloat(formData.maintenanceCost) : undefined,
-      fuelCost: formData.fuelCost ? parseFloat(formData.fuelCost) : undefined,
-    };
-
-    const success = await addTruck(truckData);
-    
-    if (success) {
-      // Reset form
-      setFormData({
-        vehicleNumber: '',
-        driver: '',
-        serviceCost: '',
-        maintenanceCost: '',
-        fuelCost: ''
-      });
-      setSelectedDate(new Date());
-    }
-  };
 
   const handleDownloadExcel = () => {
     if (trucks.length === 0) {
       return;
     }
 
-    // Create CSV content
-    const headers = ['Vehicle Number', 'Driver', 'DateTime', 'Service Cost ($)', 'Maintenance Cost ($)', 'Fuel Cost ($)', 'Date Added'];
+    // Create CSV content with new fields
+    const headers = ['Vehicle', 'Date', 'Hire (₹)', 'Expense (₹)', 'Trips', 'Fuel (₹)', 'Bata (₹)', 'Maintenance (₹)', 'Holding (₹)', 'Unloading (₹)', 'Toll (₹)', 'RTO (₹)', 'Misc (₹)', 'Balance (₹)', 'Profit/Loss (₹)'];
     const csvContent = [
       headers.join(','),
-      ...trucks.map(truck => [
-        truck.vehicleNumber || '',
-        truck.driver || '',
-        new Date(truck.datetime).toLocaleString(),
-        truck.serviceCost || '',
-        truck.maintenanceCost || '',
-        truck.fuelCost || '',
-        new Date(truck.dateAdded).toLocaleDateString()
-      ].join(','))
+      ...trucks.map(truck => {
+        const profit = (truck.hire || 0) - ((truck.expense || 0) + (truck.fuel || 0) + (truck.bata || 0) + (truck.maintenance || 0) + (truck.holding || 0) + (truck.unloading || 0) + (truck.toll || 0) + (truck.rto || 0) + (truck.misc || 0));
+        return [
+          truck.vehicle || '',
+          new Date(truck.datetime).toLocaleDateString(),
+          truck.hire || 0,
+          truck.expense || 0,
+          truck.trips || 0,
+          truck.fuel || 0,
+          truck.bata || 0,
+          truck.maintenance || 0,
+          truck.holding || 0,
+          truck.unloading || 0,
+          truck.toll || 0,
+          truck.rto || 0,
+          truck.misc || 0,
+          truck.balance || 0,
+          profit
+        ].join(',');
+      })
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -99,210 +63,48 @@ const Index = () => {
             <Truck className="h-12 w-12 text-blue-600" />
             <h1 className="text-4xl font-bold text-gray-900">Fleet Manager</h1>
           </div>
-          <p className="text-xl text-gray-600">Manage your truck fleet with ease</p>
+          <p className="text-xl text-gray-600">Manage your truck fleet with profitability insights</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Truck Form */}
           <div className="lg:col-span-1">
-            <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
-                <CardTitle className="flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
-                  Add New Truck Entry
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="vehicleNumber" className="text-sm font-medium text-gray-700">Vehicle Number</Label>
-                    <Input
-                      id="vehicleNumber"
-                      name="vehicleNumber"
-                      value={formData.vehicleNumber}
-                      onChange={handleInputChange}
-                      placeholder="Enter vehicle number"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="driver" className="text-sm font-medium text-gray-700">Driver</Label>
-                    <Input
-                      id="driver"
-                      name="driver"
-                      value={formData.driver}
-                      onChange={handleInputChange}
-                      placeholder="Enter driver name"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium text-gray-700">Date & Time</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal mt-1",
-                            !selectedDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {selectedDate ? format(selectedDate, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                          mode="single"
-                          selected={selectedDate}
-                          onSelect={(date) => date && setSelectedDate(date)}
-                          initialFocus
-                          className="p-3 pointer-events-auto"
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="serviceCost" className="text-sm font-medium text-gray-700">Service Cost ($)</Label>
-                    <Input
-                      id="serviceCost"
-                      name="serviceCost"
-                      type="number"
-                      step="0.01"
-                      value={formData.serviceCost}
-                      onChange={handleInputChange}
-                      placeholder="500.00"
-                      min="0"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="maintenanceCost" className="text-sm font-medium text-gray-700">Maintenance Cost ($)</Label>
-                    <Input
-                      id="maintenanceCost"
-                      name="maintenanceCost"
-                      type="number"
-                      step="0.01"
-                      value={formData.maintenanceCost}
-                      onChange={handleInputChange}
-                      placeholder="300.00"
-                      min="0"
-                      className="mt-1"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="fuelCost" className="text-sm font-medium text-gray-700">Fuel Cost ($)</Label>
-                    <Input
-                      id="fuelCost"
-                      name="fuelCost"
-                      type="number"
-                      step="0.01"
-                      value={formData.fuelCost}
-                      onChange={handleInputChange}
-                      placeholder="200.00"
-                      min="0"
-                      className="mt-1"
-                    />
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center gap-2">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                        Adding Entry...
-                      </div>
-                    ) : (
-                      <>
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Entry
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+            <TruckForm onSubmit={addTruck} isLoading={isLoading} />
           </div>
 
-          {/* Chart and Data */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Card className="bg-gradient-to-r from-green-500 to-green-600 text-white">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-green-100">Total Entries</p>
-                      <p className="text-2xl font-bold">{trucks.length}</p>
-                    </div>
-                    <Truck className="h-8 w-8 text-green-200" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-blue-100">Total Service Cost</p>
-                      <p className="text-2xl font-bold">
-                        ${trucks.reduce((sum, truck) => sum + (truck.serviceCost || 0), 0).toLocaleString()}
-                      </p>
-                    </div>
-                    <BarChart3 className="h-8 w-8 text-blue-200" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-gradient-to-r from-purple-500 to-purple-600 text-white">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-purple-100">Total Costs</p>
-                      <p className="text-2xl font-bold">
-                        ${trucks.reduce((sum, truck) => sum + (truck.serviceCost || 0) + (truck.maintenanceCost || 0) + (truck.fuelCost || 0), 0).toLocaleString()}
-                      </p>
-                    </div>
-                    <Download className="h-8 w-8 text-purple-200" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Chart */}
-            <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
-              <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Cost Analysis
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-6">
-                <TruckChart trucks={trucks} />
-              </CardContent>
-            </Card>
-
-            {/* Download Button */}
-            <div className="flex justify-center">
-              <Button 
-                onClick={handleDownloadExcel}
-                className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
-                disabled={trucks.length === 0}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Download Excel Report
-              </Button>
-            </div>
+          {/* Profitability Dashboard */}
+          <div className="lg:col-span-2">
+            <ProfitabilityDashboard trucks={trucks} />
           </div>
         </div>
+
+        {/* Chart Section */}
+        {trucks.length > 0 && (
+          <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
+            <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Financial Analysis
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="p-6">
+              <TruckChart trucks={trucks} />
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Download Button */}
+        {trucks.length > 0 && (
+          <div className="flex justify-center">
+            <Button 
+              onClick={handleDownloadExcel}
+              className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Download Excel Report
+            </Button>
+          </div>
+        )}
 
         {/* Truck Table */}
         {trucks.length > 0 && (
