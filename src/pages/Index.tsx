@@ -2,7 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Truck, Download, BarChart3 } from 'lucide-react';
+import { Truck, Download, BarChart3, Plus, AlertTriangle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import TruckChart from '@/components/TruckChart';
 import TruckTable from '@/components/TruckTable';
 import TruckForm from '@/components/TruckForm';
@@ -66,57 +67,111 @@ const Index = () => {
           <p className="text-xl text-gray-600">Manage your truck fleet with profitability insights</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Truck Form */}
-          <div className="lg:col-span-1">
-            <TruckForm onSubmit={addTruck} isLoading={isLoading} />
-          </div>
+        {/* Tabs */}
+        <Tabs defaultValue="dashboard" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="dashboard" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="vehicle-entry" className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Vehicle Entry
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Profitability Dashboard */}
-          <div className="lg:col-span-2">
+          <TabsContent value="dashboard" className="space-y-6">
+            {/* Profitability Dashboard */}
             <ProfitabilityDashboard trucks={trucks} />
-          </div>
-        </div>
 
-        {/* Chart Section */}
-        {trucks.length > 0 && (
-          <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
-            <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
-              <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
-                Financial Analysis
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <TruckChart trucks={trucks} />
-            </CardContent>
-          </Card>
-        )}
+            {/* Chart Section */}
+            {trucks.length > 0 && (
+              <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-slate-600 to-slate-700 text-white rounded-t-lg">
+                  <CardTitle className="flex items-center gap-2">
+                    <BarChart3 className="h-5 w-5" />
+                    Financial Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <TruckChart trucks={trucks} />
+                </CardContent>
+              </Card>
+            )}
 
-        {/* Download Button */}
-        {trucks.length > 0 && (
-          <div className="flex justify-center">
-            <Button 
-              onClick={handleDownloadExcel}
-              className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Download Excel Report
-            </Button>
-          </div>
-        )}
+            {/* Download Button */}
+            {trucks.length > 0 && (
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handleDownloadExcel}
+                  className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded-md transition-colors"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Excel Report
+                </Button>
+              </div>
+            )}
 
-        {/* Truck Table */}
-        {trucks.length > 0 && (
-          <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
-            <CardHeader className="bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-t-lg">
-              <CardTitle>Fleet Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <TruckTable trucks={trucks} />
-            </CardContent>
-          </Card>
-        )}
+            {/* Truck Table */}
+            {trucks.length > 0 && (
+              <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
+                <CardHeader className="bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-t-lg">
+                  <CardTitle>Fleet Overview</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <TruckTable trucks={trucks} />
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="vehicle-entry" className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Truck Form */}
+              <div className="lg:col-span-1">
+                <TruckForm onSubmit={addTruck} isLoading={isLoading} />
+              </div>
+
+              {/* Quick Stats */}
+              <div className="lg:col-span-1">
+                <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
+                  <CardHeader className="bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-t-lg">
+                    <CardTitle className="flex items-center gap-2">
+                      <AlertTriangle className="h-5 w-5" />
+                      Quick Stats
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Total Vehicles:</span>
+                        <span className="font-bold text-2xl text-blue-600">{trucks.length}</span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Profitable Vehicles:</span>
+                        <span className="font-bold text-2xl text-green-600">
+                          {trucks.filter(truck => {
+                            const profit = (truck.hire || 0) - ((truck.expense || 0) + (truck.fuel || 0) + (truck.bata || 0) + (truck.maintenance || 0) + (truck.holding || 0) + (truck.unloading || 0) + (truck.toll || 0) + (truck.rto || 0) + (truck.misc || 0));
+                            return profit > 0;
+                          }).length}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Loss-Making Vehicles:</span>
+                        <span className="font-bold text-2xl text-red-600">
+                          {trucks.filter(truck => {
+                            const profit = (truck.hire || 0) - ((truck.expense || 0) + (truck.fuel || 0) + (truck.bata || 0) + (truck.maintenance || 0) + (truck.holding || 0) + (truck.unloading || 0) + (truck.toll || 0) + (truck.rto || 0) + (truck.misc || 0));
+                            return profit < 0;
+                          }).length}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

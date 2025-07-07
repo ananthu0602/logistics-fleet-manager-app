@@ -44,7 +44,7 @@ export const useTrucks = () => {
         return;
       }
 
-      // Transform the data to match our new interface
+      // Transform the data to match our interface
       const transformedData: TruckData[] = data.map(truck => ({
         id: truck.id,
         vehicle: truck.vehicle_number || undefined,
@@ -53,7 +53,7 @@ export const useTrucks = () => {
         trips: truck.trips ? Number(truck.trips) : undefined,
         fuel: truck.fuel_cost ? Number(truck.fuel_cost) : undefined,
         bata: truck.bata ? Number(truck.bata) : undefined,
-        maintenance: truck.maintenance_cost ? Number(truck.maintenance_cost) : undefined,
+        maintenance: truck.maintenance ? Number(truck.maintenance) : undefined,
         holding: truck.holding ? Number(truck.holding) : undefined,
         unloading: truck.unloading ? Number(truck.unloading) : undefined,
         toll: truck.toll ? Number(truck.toll) : undefined,
@@ -90,7 +90,7 @@ export const useTrucks = () => {
           trips: truckData.trips || null,
           fuel_cost: truckData.fuel || null,
           bata: truckData.bata || null,
-          maintenance_cost: truckData.maintenance || null,
+          maintenance: truckData.maintenance || null,
           holding: truckData.holding || null,
           unloading: truckData.unloading || null,
           toll: truckData.toll || null,
@@ -120,7 +120,7 @@ export const useTrucks = () => {
         trips: data.trips ? Number(data.trips) : undefined,
         fuel: data.fuel_cost ? Number(data.fuel_cost) : undefined,
         bata: data.bata ? Number(data.bata) : undefined,
-        maintenance: data.maintenance_cost ? Number(data.maintenance_cost) : undefined,
+        maintenance: data.maintenance ? Number(data.maintenance) : undefined,
         holding: data.holding ? Number(data.holding) : undefined,
         unloading: data.unloading ? Number(data.unloading) : undefined,
         toll: data.toll ? Number(data.toll) : undefined,

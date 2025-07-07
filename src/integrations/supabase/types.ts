@@ -16,33 +16,57 @@ export type Database = {
     Tables: {
       trucks: {
         Row: {
+          balance: number | null
+          bata: number | null
           date_added: string
           datetime: string
-          driver: string | null
+          expense: number | null
           fuel_cost: number | null
+          hire: number | null
+          holding: number | null
           id: string
-          maintenance_cost: number | null
-          service_cost: number | null
+          maintenance: number | null
+          misc: number | null
+          rto: number | null
+          toll: number | null
+          trips: number | null
+          unloading: number | null
           vehicle_number: string | null
         }
         Insert: {
+          balance?: number | null
+          bata?: number | null
           date_added?: string
           datetime: string
-          driver?: string | null
+          expense?: number | null
           fuel_cost?: number | null
+          hire?: number | null
+          holding?: number | null
           id?: string
-          maintenance_cost?: number | null
-          service_cost?: number | null
+          maintenance?: number | null
+          misc?: number | null
+          rto?: number | null
+          toll?: number | null
+          trips?: number | null
+          unloading?: number | null
           vehicle_number?: string | null
         }
         Update: {
+          balance?: number | null
+          bata?: number | null
           date_added?: string
           datetime?: string
-          driver?: string | null
+          expense?: number | null
           fuel_cost?: number | null
+          hire?: number | null
+          holding?: number | null
           id?: string
-          maintenance_cost?: number | null
-          service_cost?: number | null
+          maintenance?: number | null
+          misc?: number | null
+          rto?: number | null
+          toll?: number | null
+          trips?: number | null
+          unloading?: number | null
           vehicle_number?: string | null
         }
         Relationships: []
