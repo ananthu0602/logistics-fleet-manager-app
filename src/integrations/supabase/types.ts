@@ -31,7 +31,7 @@ export type Database = {
           toll: number | null
           trips: number | null
           unloading: number | null
-          vehicle_number: string | null
+          vehicle_number: string
         }
         Insert: {
           balance?: number | null
@@ -49,7 +49,7 @@ export type Database = {
           toll?: number | null
           trips?: number | null
           unloading?: number | null
-          vehicle_number?: string | null
+          vehicle_number: string
         }
         Update: {
           balance?: number | null
@@ -67,7 +67,7 @@ export type Database = {
           toll?: number | null
           trips?: number | null
           unloading?: number | null
-          vehicle_number?: string | null
+          vehicle_number?: string
         }
         Relationships: []
       }
