@@ -19,9 +19,10 @@ const navigationItems = [
 ];
 
 export function AppSidebar() {
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
   const location = useLocation();
   const currentTab = new URLSearchParams(location.search).get('tab') || 'dashboard';
+  const collapsed = state === 'collapsed';
 
   const isActive = (id: string) => {
     if (id === 'dashboard') return currentTab === 'dashboard' || !currentTab;
@@ -29,7 +30,7 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar className={collapsed ? 'w-14' : 'w-64'} collapsible>
+    <Sidebar className={collapsed ? 'w-14' : 'w-64'} collapsible="icon">
       <SidebarContent>
         {/* Header */}
         <div className="p-4 border-b">
