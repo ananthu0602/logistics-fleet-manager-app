@@ -160,6 +160,19 @@ const Index = () => {
 
   const renderVehicleEntry = () => (
     <div className="space-y-6">
+      <div className="border-b border-border pb-4">
+        <h2 className="text-2xl font-bold text-foreground">Vehicle Entry</h2>
+        <p className="text-muted-foreground">Add new vehicle entries to your fleet</p>
+      </div>
+
+      <div className="max-w-2xl mx-auto">
+        <TruckForm onSubmit={addTruck} isLoading={isLoading} />
+      </div>
+    </div>
+  );
+
+  const renderManageEntries = () => (
+    <div className="space-y-6">
       {/* Section Header */}
       <div className="border-b pb-4">
         <h2 className="text-2xl font-bold text-gray-900">Truck Data Entry</h2>
@@ -230,7 +243,7 @@ const Index = () => {
 
           {/* Main Content */}
           <main className="flex-1 p-6 overflow-auto">
-            {currentTab === 'vehicle-entry' ? renderVehicleEntry() : renderDashboard()}
+            {currentTab === 'vehicle-entry' ? renderVehicleEntry() : currentTab === 'manage-entries' ? renderManageEntries() : renderDashboard()}
           </main>
         </div>
 
