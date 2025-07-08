@@ -10,11 +10,12 @@ import TruckTable from '@/components/TruckTable';
 import TruckForm from '@/components/TruckForm';
 import ProfitabilityDashboard from '@/components/ProfitabilityDashboard';
 import DashboardAnalytics from '@/components/DashboardAnalytics';
+import ManageEntriesTable from '@/components/ManageEntriesTable';
 import { useTrucks } from '@/hooks/useTrucks';
 import { useLocation } from 'react-router-dom';
 
 const Index = () => {
-  const { trucks, isLoading, addTruck } = useTrucks();
+  const { trucks, isLoading, addTruck, updateTruck, deleteTruck } = useTrucks();
   const location = useLocation();
   const currentTab = new URLSearchParams(location.search).get('tab') || 'dashboard';
 
@@ -171,6 +172,39 @@ const Index = () => {
     </div>
   );
 
+  const renderManageEntries = () => (
+    <div className="space-y-6">
+      {/* Section Header */}
+      <div className="border-b pb-4">
+        <h2 className="text-2xl font-bold text-gray-900">Manage Entries</h2>
+        <p className="text-gray-600">Edit and delete existing truck entries</p>
+      </div>
+
+      {/* Manage Entries Table */}
+      {trucks.length > 0 ? (
+        <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
+          <CardHeader className="bg-gradient-to-r from-orange-600 to-orange-700 text-white rounded-t-lg">
+            <CardTitle>All Truck Entries</CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
+            <ManageEntriesTable 
+              trucks={trucks} 
+              onUpdate={updateTruck}
+              onDelete={deleteTruck}
+              isLoading={isLoading}
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
+          <CardContent className="p-6 text-center">
+            <p className="text-gray-500">No truck entries found. Add some entries first.</p>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-slate-100">
@@ -188,7 +222,9 @@ const Index = () => {
 
           {/* Main Content */}
           <main className="flex-1 p-6 overflow-auto">
-            {currentTab === 'vehicle-entry' ? renderVehicleEntry() : renderDashboard()}
+            {currentTab === 'vehicle-entry' ? renderVehicleEntry() : 
+             currentTab === 'manage-entries' ? renderManageEntries() : 
+             renderDashboard()}
           </main>
         </div>
       </div>

@@ -1,37 +1,49 @@
-
-import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Plus, CalendarIcon } from 'lucide-react';
+import { CalendarIcon, Save } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
-interface TruckFormData {
-  vehicle: string;
-  hire: string;
-  expense: string;
-  trips: string;
-  fuel: string;
-  bata: string;
-  maintenance: string;
-  holding: string;
-  unloading: string;
-  toll: string;
-  rto: string;
-  misc: string;
+interface TruckData {
+  id: string;
+  vehicle?: string;
+  hire?: number;
+  expense?: number;
+  trips?: number;
+  fuel?: number;
+  bata?: number;
+  maintenance?: number;
+  holding?: number;
+  unloading?: number;
+  toll?: number;
+  rto?: number;
+  misc?: number;
+  balance?: number;
+  datetime: string;
+  dateAdded: string;
 }
 
-interface TruckFormProps {
-  onSubmit: (data: any) => Promise<boolean>;
+interface EditTruckDialogProps {
+  truck: TruckData | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onUpdate: (id: string, data: any) => Promise<boolean>;
   isLoading: boolean;
 }
 
-const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
-  const [formData, setFormData] = useState<TruckFormData>({
+const EditTruckDialog: React.FC<EditTruckDialogProps> = ({
+  truck,
+  isOpen,
+  onClose,
+  onUpdate,
+  isLoading
+}) => {
+  const [formData, setFormData] = useState({
     vehicle: '',
     hire: '',
     expense: '',
@@ -47,6 +59,26 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
   });
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
 
+  useEffect(() => {
+    if (truck) {
+      setFormData({
+        vehicle: truck.vehicle || '',
+        hire: truck.hire?.toString() || '',
+        expense: truck.expense?.toString() || '',
+        trips: truck.trips?.toString() || '',
+        fuel: truck.fuel?.toString() || '',
+        bata: truck.bata?.toString() || '',
+        maintenance: truck.maintenance?.toString() || '',
+        holding: truck.holding?.toString() || '',
+        unloading: truck.unloading?.toString() || '',
+        toll: truck.toll?.toString() || '',
+        rto: truck.rto?.toString() || '',
+        misc: truck.misc?.toString() || ''
+      });
+      setSelectedDate(new Date(truck.datetime));
+    }
+  }, [truck]);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -57,6 +89,7 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!truck) return;
 
     const truckData = {
       vehicle: formData.vehicle || undefined,
@@ -72,28 +105,11 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
       toll: formData.toll ? parseFloat(formData.toll) : undefined,
       rto: formData.rto ? parseFloat(formData.rto) : undefined,
       misc: formData.misc ? parseFloat(formData.misc) : undefined,
-      
     };
 
-    const success = await onSubmit(truckData);
-    
+    const success = await onUpdate(truck.id, truckData);
     if (success) {
-      // Reset form
-      setFormData({
-        vehicle: '',
-        hire: '',
-        expense: '',
-        trips: '',
-        fuel: '',
-        bata: '',
-        maintenance: '',
-        holding: '',
-        unloading: '',
-        toll: '',
-        rto: '',
-        misc: ''
-      });
-      setSelectedDate(new Date());
+      onClose();
     }
   };
 
@@ -113,33 +129,36 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
   ];
 
   return (
-    <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
-      <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-t-lg">
-        <CardTitle className="flex items-center gap-2">
-          <Plus className="h-5 w-5" />
-          Add New Truck Entry
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-6">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Save className="h-5 w-5" />
+            Edit Truck Entry
+          </DialogTitle>
+        </DialogHeader>
+        
         <form onSubmit={handleSubmit} className="space-y-4">
-          {fields.map((field) => (
-            <div key={field.name}>
-              <Label htmlFor={field.name} className="text-sm font-medium text-gray-700">
-                {field.label}
-              </Label>
-              <Input
-                id={field.name}
-                name={field.name}
-                type={field.type}
-                step={field.type === 'number' ? '0.01' : undefined}
-                value={formData[field.name as keyof TruckFormData]}
-                onChange={handleInputChange}
-                placeholder={field.placeholder}
-                min={field.type === 'number' ? '0' : undefined}
-                className="mt-1"
-              />
-            </div>
-          ))}
+          <div className="grid grid-cols-2 gap-4">
+            {fields.map((field) => (
+              <div key={field.name}>
+                <Label htmlFor={field.name} className="text-sm font-medium text-gray-700">
+                  {field.label}
+                </Label>
+                <Input
+                  id={field.name}
+                  name={field.name}
+                  type={field.type}
+                  step={field.type === 'number' ? '0.01' : undefined}
+                  value={formData[field.name as keyof typeof formData]}
+                  onChange={handleInputChange}
+                  placeholder={field.placeholder}
+                  min={field.type === 'number' ? '0' : undefined}
+                  className="mt-1"
+                />
+              </div>
+            ))}
+          </div>
 
           <div>
             <Label className="text-sm font-medium text-gray-700">Date</Label>
@@ -168,27 +187,37 @@ const TruckForm: React.FC<TruckFormProps> = ({ onSubmit, isLoading }) => {
             </Popover>
           </div>
           
-          <Button 
-            type="submit" 
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <div className="flex items-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                Adding Entry...
-              </div>
-            ) : (
-              <>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Entry
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2 pt-4">
+            <Button 
+              type="submit" 
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition-colors"
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  Updating...
+                </div>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Update Entry
+                </>
+              )}
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onClose}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+          </div>
         </form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default TruckForm;
+export default EditTruckDialog;
