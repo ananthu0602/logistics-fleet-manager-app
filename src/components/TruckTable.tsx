@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
 
 interface TruckData {
   id: string;
@@ -17,17 +16,16 @@ interface TruckData {
   toll?: number;
   rto?: number;
   misc?: number;
+  balance?: number;
   datetime: string;
   dateAdded: string;
 }
 
 interface TruckTableProps {
   trucks: TruckData[];
-  onEdit?: (truck: TruckData) => void;
-  onDelete?: (id: string) => void;
 }
 
-const TruckTable: React.FC<TruckTableProps> = ({ trucks, onEdit, onDelete }) => {
+const TruckTable: React.FC<TruckTableProps> = ({ trucks }) => {
   const calculateProfit = (truck: TruckData) => {
     const income = truck.hire || 0;
     const totalExpenses = (truck.expense || 0) + (truck.fuel || 0) + (truck.bata || 0) + 
@@ -40,69 +38,46 @@ const TruckTable: React.FC<TruckTableProps> = ({ trucks, onEdit, onDelete }) => 
     <div className="overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow className="bg-muted border-b">
-            <TableHead className="font-semibold text-foreground">Vehicle</TableHead>
-            <TableHead className="font-semibold text-foreground">Date</TableHead>
-            <TableHead className="font-semibold text-foreground">Hire</TableHead>
-            <TableHead className="font-semibold text-foreground">Trips</TableHead>
-            <TableHead className="font-semibold text-foreground">Fuel</TableHead>
-            <TableHead className="font-semibold text-foreground">Maintenance</TableHead>
-            <TableHead className="font-semibold text-foreground">Profit/Loss</TableHead>
-            {(onEdit || onDelete) && <TableHead className="font-semibold text-foreground">Actions</TableHead>}
+          <TableRow className="bg-gray-50">
+            <TableHead className="font-semibold text-gray-700">Vehicle</TableHead>
+            <TableHead className="font-semibold text-gray-700">Date</TableHead>
+            <TableHead className="font-semibold text-gray-700">Hire</TableHead>
+            <TableHead className="font-semibold text-gray-700">Trips</TableHead>
+            <TableHead className="font-semibold text-gray-700">Fuel</TableHead>
+            <TableHead className="font-semibold text-gray-700">Maintenance</TableHead>
+            <TableHead className="font-semibold text-gray-700">Balance</TableHead>
+            <TableHead className="font-semibold text-gray-700">Profit/Loss</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {trucks.map((truck) => {
             const profit = calculateProfit(truck);
             return (
-              <TableRow key={truck.id} className="hover:bg-muted/50 transition-colors border-b">
-                <TableCell className="font-medium text-card-foreground">
+              <TableRow key={truck.id} className="hover:bg-gray-50 transition-colors">
+                <TableCell className="font-medium text-gray-900">
                   {truck.vehicle || '-'}
                 </TableCell>
-                <TableCell className="text-muted-foreground text-sm">
+                <TableCell className="text-gray-500 text-sm">
                   {new Date(truck.datetime).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="font-medium text-success">
+                <TableCell className="font-medium text-green-600">
                   {truck.hire ? `₹${truck.hire.toLocaleString()}` : '-'}
                 </TableCell>
-                <TableCell className="text-card-foreground">
+                <TableCell className="text-gray-700">
                   {truck.trips || '-'}
                 </TableCell>
-                <TableCell className="font-medium text-warning">
+                <TableCell className="font-medium text-red-600">
                   {truck.fuel ? `₹${truck.fuel.toLocaleString()}` : '-'}
                 </TableCell>
-                <TableCell className="font-medium text-destructive">
+                <TableCell className="font-medium text-orange-600">
                   {truck.maintenance ? `₹${truck.maintenance.toLocaleString()}` : '-'}
                 </TableCell>
-                <TableCell className={`font-medium ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
+                <TableCell className="font-medium text-blue-600">
+                  {truck.balance ? `₹${truck.balance.toLocaleString()}` : '-'}
+                </TableCell>
+                <TableCell className={`font-medium ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {profit >= 0 ? '+' : ''}₹{profit.toLocaleString()}
                 </TableCell>
-                {(onEdit || onDelete) && (
-                  <TableCell>
-                    <div className="flex gap-2">
-                      {onEdit && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onEdit(truck)}
-                          className="text-primary border-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-                        >
-                          Edit
-                        </Button>
-                      )}
-                      {onDelete && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => onDelete(truck.id)}
-                          className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
-                        >
-                          Delete
-                        </Button>
-                      )}
-                    </div>
-                  </TableCell>
-                )}
               </TableRow>
             );
           })}

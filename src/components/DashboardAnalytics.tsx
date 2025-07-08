@@ -17,6 +17,7 @@ interface TruckData {
   toll?: number;
   rto?: number;
   misc?: number;
+  balance?: number;
   datetime: string;
   dateAdded: string;
 }

@@ -1,5 +1,5 @@
 
-import { BarChart3, Plus, Truck, Edit } from 'lucide-react';
+import { BarChart3, Plus, Truck } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -16,7 +16,6 @@ import {
 const navigationItems = [
   { title: 'Dashboard', url: '/', icon: BarChart3, id: 'dashboard' },
   { title: 'Vehicle Entry', url: '/?tab=vehicle-entry', icon: Plus, id: 'vehicle-entry' },
-  { title: 'Manage Entries', url: '/?tab=manage-entries', icon: Edit, id: 'manage-entries' },
 ];
 
 export function AppSidebar() {
@@ -36,11 +35,11 @@ export function AppSidebar() {
         {/* Header */}
         <div className="p-4 border-b">
           <div className="flex items-center gap-2">
-            <Truck className="h-6 w-6 text-primary" />
+            <Truck className="h-6 w-6 text-blue-600" />
             {!collapsed && (
               <div>
-                <h1 className="font-bold text-lg text-foreground">Harbour Traders</h1>
-                <p className="text-sm text-muted-foreground">Fleet Manager</p>
+                <h1 className="font-bold text-lg text-gray-900">Harbour Traders</h1>
+                <p className="text-sm text-gray-600">Fleet Manager</p>
               </div>
             )}
           </div>
@@ -55,10 +54,10 @@ export function AppSidebar() {
                   <SidebarMenuButton asChild>
                     <NavLink
                       to={item.url}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-md transition-all duration-200 ${
+                      className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
                         isActive(item.id)
-                          ? 'bg-primary text-primary-foreground font-medium shadow-sm'
-                          : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                          ? 'bg-blue-100 text-blue-800 font-medium'
+                          : 'text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       <item.icon className="h-4 w-4" />
