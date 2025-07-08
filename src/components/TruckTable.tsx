@@ -40,38 +40,38 @@ const TruckTable: React.FC<TruckTableProps> = ({ trucks, onEdit, onDelete }) => 
     <div className="overflow-x-auto">
       <Table>
         <TableHeader>
-          <TableRow className="bg-gray-50">
-            <TableHead className="font-semibold text-gray-700">Vehicle</TableHead>
-            <TableHead className="font-semibold text-gray-700">Date</TableHead>
-            <TableHead className="font-semibold text-gray-700">Hire</TableHead>
-            <TableHead className="font-semibold text-gray-700">Trips</TableHead>
-            <TableHead className="font-semibold text-gray-700">Fuel</TableHead>
-            <TableHead className="font-semibold text-gray-700">Maintenance</TableHead>
-            <TableHead className="font-semibold text-gray-700">Profit/Loss</TableHead>
-            {(onEdit || onDelete) && <TableHead className="font-semibold text-gray-700">Actions</TableHead>}
+          <TableRow className="bg-muted border-b">
+            <TableHead className="font-semibold text-foreground">Vehicle</TableHead>
+            <TableHead className="font-semibold text-foreground">Date</TableHead>
+            <TableHead className="font-semibold text-foreground">Hire</TableHead>
+            <TableHead className="font-semibold text-foreground">Trips</TableHead>
+            <TableHead className="font-semibold text-foreground">Fuel</TableHead>
+            <TableHead className="font-semibold text-foreground">Maintenance</TableHead>
+            <TableHead className="font-semibold text-foreground">Profit/Loss</TableHead>
+            {(onEdit || onDelete) && <TableHead className="font-semibold text-foreground">Actions</TableHead>}
           </TableRow>
         </TableHeader>
         <TableBody>
           {trucks.map((truck) => {
             const profit = calculateProfit(truck);
             return (
-              <TableRow key={truck.id} className="hover:bg-gray-50 transition-colors">
-                <TableCell className="font-medium text-gray-900">
+              <TableRow key={truck.id} className="hover:bg-muted/50 transition-colors border-b">
+                <TableCell className="font-medium text-card-foreground">
                   {truck.vehicle || '-'}
                 </TableCell>
-                <TableCell className="text-gray-500 text-sm">
+                <TableCell className="text-muted-foreground text-sm">
                   {new Date(truck.datetime).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="font-medium text-green-600">
+                <TableCell className="font-medium text-success">
                   {truck.hire ? `₹${truck.hire.toLocaleString()}` : '-'}
                 </TableCell>
-                <TableCell className="text-gray-700">
+                <TableCell className="text-card-foreground">
                   {truck.trips || '-'}
                 </TableCell>
-                <TableCell className="font-medium text-red-600">
+                <TableCell className="font-medium text-warning">
                   {truck.fuel ? `₹${truck.fuel.toLocaleString()}` : '-'}
                 </TableCell>
-                <TableCell className="font-medium text-orange-600">
+                <TableCell className="font-medium text-destructive">
                   {truck.maintenance ? `₹${truck.maintenance.toLocaleString()}` : '-'}
                 </TableCell>
                 <TableCell className={`font-medium ${profit >= 0 ? 'text-success' : 'text-destructive'}`}>
@@ -85,7 +85,7 @@ const TruckTable: React.FC<TruckTableProps> = ({ trucks, onEdit, onDelete }) => 
                           variant="outline"
                           size="sm"
                           onClick={() => onEdit(truck)}
-                          className="hover:bg-info hover:text-info-foreground transition-colors"
+                          className="text-primary border-primary hover:bg-primary hover:text-primary-foreground transition-colors"
                         >
                           Edit
                         </Button>
@@ -95,7 +95,7 @@ const TruckTable: React.FC<TruckTableProps> = ({ trucks, onEdit, onDelete }) => 
                           variant="outline"
                           size="sm"
                           onClick={() => onDelete(truck.id)}
-                          className="hover:bg-destructive hover:text-destructive-foreground transition-colors"
+                          className="text-destructive border-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors"
                         >
                           Delete
                         </Button>
