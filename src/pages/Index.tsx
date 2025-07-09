@@ -80,7 +80,7 @@ const Index = () => {
         
         <div className="flex-1 flex flex-col">
           {/* Header with Sidebar Trigger */}
-          <header className="h-16 flex items-center justify-between border-b bg-white/70 backdrop-blur-sm px-[24px] rounded-none my-0 py-0">
+          <header className="h-16 flex items-center justify-between border-b bg-white/70 backdrop-blur-sm px-[24px] rounded-none my-0 py-[40px]">
             <SidebarTrigger className="h-8 w-8" />
             <div className="text-right">
               <h1 className="text-xl font-bold text-gray-900">Harbour Traders</h1>
