@@ -1,5 +1,5 @@
 
-import { BarChart3, Plus, Truck, Edit } from 'lucide-react';
+import { BarChart3, Truck, Users, MapPin, Wrench } from 'lucide-react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   Sidebar,
@@ -15,8 +15,10 @@ import {
 
 const navigationItems = [
   { title: 'Dashboard', url: '/', icon: BarChart3, id: 'dashboard' },
-  { title: 'Vehicle Entry', url: '/?tab=vehicle-entry', icon: Plus, id: 'vehicle-entry' },
-  { title: 'Manage Entries', url: '/?tab=manage-entries', icon: Edit, id: 'manage-entries' },
+  { title: 'Vehicles', url: '/?tab=vehicles', icon: Truck, id: 'vehicles' },
+  { title: 'Drivers', url: '/?tab=drivers', icon: Users, id: 'drivers' },
+  { title: 'Trips', url: '/?tab=trips', icon: MapPin, id: 'trips' },
+  { title: 'Maintenance', url: '/?tab=maintenance', icon: Wrench, id: 'maintenance' },
 ];
 
 export function AppSidebar() {

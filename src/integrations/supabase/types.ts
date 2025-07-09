@@ -14,59 +14,163 @@ export type Database = {
   }
   public: {
     Tables: {
-      trucks: {
+      drivers: {
         Row: {
-          balance: number | null
-          bata: number | null
-          date_added: string
-          datetime: string
-          expense: number | null
-          fuel_cost: number | null
-          hire: number | null
-          holding: number | null
+          contact_no: string | null
+          created_at: string
           id: string
-          maintenance: number | null
+          license_no: string | null
+          name: string
+        }
+        Insert: {
+          contact_no?: string | null
+          created_at?: string
+          id?: string
+          license_no?: string | null
+          name: string
+        }
+        Update: {
+          contact_no?: string | null
+          created_at?: string
+          id?: string
+          license_no?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      operational_costs: {
+        Row: {
+          created_at: string
+          id: string
+          maintenance_charge: number | null
+          notes: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          maintenance_charge?: number | null
+          notes?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          maintenance_charge?: number | null
+          notes?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_costs_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      trips: {
+        Row: {
+          bata: number | null
+          created_at: string
+          date: string
+          driver_id: string
+          driver_name: string
+          from_location: string
+          fuel: number | null
+          fuel_liters: number | null
+          hire: number | null
+          id: string
           misc: number | null
           rto: number | null
+          to_location: string
           toll: number | null
-          trips: number | null
-          unloading: number | null
+          vehicle_id: string
           vehicle_number: string
         }
         Insert: {
-          balance?: number | null
           bata?: number | null
-          date_added?: string
-          datetime: string
-          expense?: number | null
-          fuel_cost?: number | null
+          created_at?: string
+          date: string
+          driver_id: string
+          driver_name: string
+          from_location: string
+          fuel?: number | null
+          fuel_liters?: number | null
           hire?: number | null
-          holding?: number | null
           id?: string
-          maintenance?: number | null
           misc?: number | null
           rto?: number | null
+          to_location: string
           toll?: number | null
-          trips?: number | null
-          unloading?: number | null
+          vehicle_id: string
           vehicle_number: string
         }
         Update: {
-          balance?: number | null
           bata?: number | null
-          date_added?: string
-          datetime?: string
-          expense?: number | null
-          fuel_cost?: number | null
+          created_at?: string
+          date?: string
+          driver_id?: string
+          driver_name?: string
+          from_location?: string
+          fuel?: number | null
+          fuel_liters?: number | null
           hire?: number | null
-          holding?: number | null
           id?: string
-          maintenance?: number | null
           misc?: number | null
           rto?: number | null
+          to_location?: string
           toll?: number | null
-          trips?: number | null
-          unloading?: number | null
+          vehicle_id?: string
+          vehicle_number?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trips_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trips_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          created_at: string
+          emi: number | null
+          id: string
+          insurance: number | null
+          permit: number | null
+          pucc: number | null
+          tax: number | null
+          vehicle_number: string
+        }
+        Insert: {
+          created_at?: string
+          emi?: number | null
+          id?: string
+          insurance?: number | null
+          permit?: number | null
+          pucc?: number | null
+          tax?: number | null
+          vehicle_number: string
+        }
+        Update: {
+          created_at?: string
+          emi?: number | null
+          id?: string
+          insurance?: number | null
+          permit?: number | null
+          pucc?: number | null
+          tax?: number | null
           vehicle_number?: string
         }
         Relationships: []
